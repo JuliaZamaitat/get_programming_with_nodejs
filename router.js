@@ -9,7 +9,7 @@ const routes = {
 
 exports.handle = (req, res) => {
   try {
-    routes[req.method][req.url])(req, res);
+    routes[req.method][req.url](req, res);
   } catch (e) {
     res.writeHead(httpStatus.OK, contentTypes.html);
     utils.getFile("views/error.html", res);
