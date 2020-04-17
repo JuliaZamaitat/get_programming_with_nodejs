@@ -6,7 +6,7 @@ const port = 3000,
 
 app.set("port", process.env.PORT || 3000);//sets port to enviromental port or localhost on 3000
 app.set("view engine", "ejs"); //informs about templating, sets view enging as ejs
-app.use(layouts)
+app.use(layouts);
 app.get("/name/:myName", homeController.respondWithName);
 
 
