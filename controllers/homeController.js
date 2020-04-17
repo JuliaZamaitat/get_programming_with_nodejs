@@ -14,3 +14,8 @@ exports.logRequestPaths = (req, res, next) => {
   console.log(req.query);
   next();
 };
+
+exports.userSignUpProcessor = (req, res) => {
+  console.log(req.query);
+  res.send("You can now log in");
+}
