@@ -57,9 +57,11 @@ app.get("/name", homeController.respondWithName);
 app.get("/items/:vegetable", homeController.sendReqParam);
 
 app.get("/subscribers", subscribersController.getAllSubscribers, (req, res, next) => {
-  console.log(req.data);
-  res.send(req.data);
+  res.render("subscribers", {subscribers: req.data});
 });
+
+app.get("/contact", subscribersController.renderContactPage);
+app.post("/subscribe", subscribersController.saveSubscriber);
 
 app.post("/", (req, res) => {
   console.log(req.body);
