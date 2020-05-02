@@ -7,6 +7,8 @@ layouts = require("express-ejs-layouts"),
 mongoose = require("mongoose"),
 subscribersController = require("./controllers/subscribersController");
 
+mongoose.Promise = global.Promise;
+
 mongoose.connect( //Sets up connection to our database
   "mongodb://localhost:27017/recipe_db",
   {useNewUrlParser: true}
