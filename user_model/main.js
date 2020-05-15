@@ -6,7 +6,9 @@ const express = require("express"),
   errorController = require("./controllers/errorController"),
   layouts = require("express-ejs-layouts"),
   mongoose = require("mongoose"),
-  subscribersController = require("./controllers/subscribersController");
+  subscribersController = require("./controllers/subscribersController"),
+  usersController = require("./controllers/usersController"),
+  coursesController = require("./controllers/coursesController");
 
   mongoose.connect(
     "mongodb://localhost:27017/confetti_cuisine",
@@ -25,13 +27,13 @@ app.use(express.json());
 app.use(layouts);
 app.use(express.static("public"));
 
-app.get("/", (req, res) => {
-  res.render("index");
-});
+app.get("/", homeController.index);
+app.get("/contact", homeController.getSubscriptionPage);
 
-app.get("/courses", homeController.showCourses);
-app.get("/subscribers", subscribersController.getAllSubscribers);
-app.get("/contact", subscribersController.getAllSubscriptionPage);
+app.get("/users", usersController.index, usersController.indexView);
+app.get("/subscribers", subscribersController.index, subscribersController.indexView);
+app.get("/courses", coursesController.index, coursesController.indexView);
+
 app.post("/subscribe", subscribersController.saveSubscriber);
 
 app.use(errorController.pageNotFoundError);
