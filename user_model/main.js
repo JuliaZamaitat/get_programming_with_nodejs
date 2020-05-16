@@ -8,7 +8,8 @@ const express = require("express"),
   mongoose = require("mongoose"),
   subscribersController = require("./controllers/subscribersController"),
   usersController = require("./controllers/usersController"),
-  coursesController = require("./controllers/coursesController");
+  coursesController = require("./controllers/coursesController"),
+  router = express.Router();
 
   mongoose.connect(
     "mongodb://localhost:27017/confetti_cuisine",
@@ -23,18 +24,23 @@ app.use(
     extended: false
   })
 );
+app.use("/", router);
 app.use(express.json());
 app.use(layouts);
 app.use(express.static("public"));
 
-app.get("/", homeController.index);
-app.get("/contact", homeController.getSubscriptionPage);
+router.get("/", homeController.index);
+router.get("/contact", homeController.getSubscriptionPage);
 
-app.get("/users", usersController.index, usersController.indexView);
-app.get("/subscribers", subscribersController.index, subscribersController.indexView);
-app.get("/courses", coursesController.index, coursesController.indexView);
 
-app.post("/subscribe", subscribersController.saveSubscriber);
+router.get("/subscribers", subscribersController.index, subscribersController.indexView);
+router.get("/courses", coursesController.index, coursesController.indexView);
+
+router.post("/subscribe", subscribersController.saveSubscriber);
+router.get("/users", usersController.index, usersController.indexView);
+router.get("/users/new", usersController.new);
+router.get("/users/:id", usersController.show, usersController.showView);
+router.post("/users/create", usersController.create, usersController.redirectView);
 
 app.use(errorController.pageNotFoundError);
 app.use(errorController.internalServerError);
