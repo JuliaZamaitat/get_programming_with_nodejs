@@ -47,7 +47,6 @@ router.use(expressSession({ //Configure express-session to use cookie-parser
 }));
 router.use(connectFlash()); //as middleware
 router.use((req, res, next) => { //middleware to associate connectFlash to flashes on response
-  console.log("Using middleware");
   res.locals.flashMessages = req.flash();
   next();
 });
@@ -77,6 +76,8 @@ router.get("/subscribers/:id", subscribersController.show, subscribersController
 
 router.get("/users", usersController.index, usersController.indexView);
 router.get("/users/new", usersController.new);
+router.get("/users/login", usersController.login); //have to be above :id routes
+router.post("/users/login", usersController.authenticate, usersController.redirectView);
 router.get("/users/:id", usersController.show, usersController.showView);
 router.get("/users/:id/edit", usersController.edit);
 router.put("/users/:id/update", usersController.update, usersController.redirectView);

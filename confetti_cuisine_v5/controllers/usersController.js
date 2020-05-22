@@ -27,12 +27,9 @@ module.exports = {
       });
   },
   indexView: (req, res) => {
-    res.render("users/index", {
-      flashMessages: {
-        success: "Loaded all users!"
-      }
-    });
+    res.render("users/index");
   },
+
   new: (req, res) => {
     res.render("users/new");
   },
@@ -87,26 +84,24 @@ module.exports = {
   },
   update: (req, res, next) => {
     let userId = req.params.id,
-      userParams = {
-        name: {
-          first: req.body.first,
-          last: req.body.last
-        },
-        email: req.body.email,
-        password: req.body.password,
-        zipCode: req.body.zipCode
-      };
+      userParams = getUserParams(req.body);
     User.findByIdAndUpdate(userId, {
       $set: userParams
+    },
+    {
+      runValidators: true
     })
       .then(user => {
+        req.flash("success", `${user.fullName}'s account updated successfully!`);
         res.locals.redirect = `/users/${userId}`;
         res.locals.user = user;
         next();
       })
       .catch(error => {
-        console.log(`Error updating user by ID: ${error.message}`);
-        next(error);
+        console.log(`Error updating user: ${error.message}`);
+        res.locals.redirect = `/users/${userId}/edit`;
+        req.flash("error", `Failed to update user account because: ${error.message}`);
+        next();
       });
   },
   delete: (req, res, next) => {
@@ -114,11 +109,42 @@ module.exports = {
     User.findByIdAndRemove(userId)
       .then(() => {
         res.locals.redirect = "/users";
+        req.flash("success", `${user.fullName}'s account deleted successfully!`);
         next();
       })
       .catch(error => {
         console.log(`Error deleting user by ID: ${error.message}`);
         next();
       });
-  }
+  },
+  login: (req, res) => {
+    res.render("users/login");
+  },
+  authenticate: (req, res, next) => {
+    User.findOne({ email: req.body.email })
+      .then(user => {
+        if (user) {
+          user.passwordComparison(req.body.password)
+          .then(passwordsMatch => {
+            if (passwordsMatch) {
+              res.locals.redirect = `/users/${user._id}`;
+              req.flash("success", `${user.fullName}'s logged in successfully!`);
+              res.locals.user = user;
+            } else {
+              req.flash("error", "Failed to log in user account: Incorrect Password.");
+              res.locals.redirect = "/users/login";
+            }
+            next();
+          });
+        } else {
+          req.flash("error", "Failed to log in user account: User account not found.");
+          res.locals.redirect = "/users/login";
+          next();
+        }
+      })
+      .catch(error => {
+        console.log(`Error logging in user: ${error.message}`);
+        next(error);
+      });
+  },
 };
