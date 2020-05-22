@@ -36,7 +36,7 @@ app.use(express.static("public"));
 router.use(methodOverride("_method", {
   methods: ["POST", "GET"]
 }));
-router.use(cookieParser("secret_passcode")); //as middleware
+router.use(cookieParser("secret_passcode")); // load the cookie-parsing middleware
 router.use(expressSession({ //Configure express-session to use cookie-parser
   secret: "secret_passcode",
   cookie: {
@@ -46,6 +46,11 @@ router.use(expressSession({ //Configure express-session to use cookie-parser
   saveUninitialized: false
 }));
 router.use(connectFlash()); //as middleware
+router.use((req, res, next) => { //middleware to associate connectFlash to flashes on response
+  console.log("Using middleware");
+  res.locals.flashMessages = req.flash();
+  next();
+});
 
 router.get("/", homeController.index);
 router.get("/contact", homeController.getSubscriptionPage);
