@@ -34,6 +34,7 @@ module.exports = {
     res.render("users/new");
   },
   create: (req, res, next) => {
+    if (req.skip) next();
     let userParams = getUserParams(req.body);
     User.create(userParams)
       .then(user => {
@@ -147,4 +148,35 @@ module.exports = {
         next(error);
       });
   },
+  validate: (req, res, next) => {
+    req
+      .sanitizeBody("email")
+      .normalizeEmail({
+        all_lowercase: true
+      })
+      .trim();
+    req.check("email", "Email is invalid").isEmail();
+    req
+      .check("zipCode", "Zip code is invalid")
+      .notEmpty()
+      .isInt()
+      .isLength({
+        min: 5,
+        max: 5
+      })
+      .equals(req.body.zipCode);
+    req.check("password", "Password cannot be empty").notEmpty();
+
+    req.getValidationResult().then(error => {
+      if (!error.isEmpty()) {
+        let messages = error.array().map(e => e.msg);
+        req.skip = true; //tells to skip the create action and instead go to redirectView
+        req.flash("error", messages.join(" and "));
+        res.locals.redirect = "/users/new";
+        next();
+      } else {
+        next();
+      }
+    });
+  }
 };

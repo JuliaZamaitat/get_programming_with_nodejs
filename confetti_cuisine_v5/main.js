@@ -13,7 +13,8 @@ const express = require("express"),
   methodOverride = require("method-override"),
   expressSession = require("express-session"),
   cookieParser = require("cookie-parser"),
-  connectFlash = require("connect-flash");
+  connectFlash = require("connect-flash"),
+  expressValidator = require("express-validator");
 
   mongoose.connect(
     "mongodb://localhost:27017/confetti_cuisine",
@@ -33,6 +34,7 @@ app.use(express.json());
 app.use(layouts);
 app.use(express.static("public"));
 
+
 router.use(methodOverride("_method", {
   methods: ["POST", "GET"]
 }));
@@ -50,6 +52,8 @@ router.use((req, res, next) => { //middleware to associate connectFlash to flash
   res.locals.flashMessages = req.flash();
   next();
 });
+
+router.use(expressValidator());
 
 router.get("/", homeController.index);
 router.get("/contact", homeController.getSubscriptionPage);
@@ -82,7 +86,7 @@ router.get("/users/:id", usersController.show, usersController.showView);
 router.get("/users/:id/edit", usersController.edit);
 router.put("/users/:id/update", usersController.update, usersController.redirectView);
 router.delete("/users/:id/delete", usersController.delete, usersController.redirectView);
-router.post("/users/create", usersController.create, usersController.redirectView);
+router.post("/users/create", usersController.validate, usersController.create, usersController.redirectView);
 
 router.get("/courses", coursesController.index, coursesController.indexView);
 router.get("/courses/new", coursesController.new);
