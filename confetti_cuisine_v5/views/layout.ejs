@@ -31,6 +31,27 @@
 			<a href="/subscribers">
 				<span class="button">Subscribers</span>
 			</a>
+			<a href="/users">
+				<span class="button">Users</span>
+			</a>
+			<a href="/users/new">
+				<span class="button">New User</span>
+			</a>
+		</div>
+		<div class="login-status">
+			<% if (loggedIn) { %>
+			<div class="bubble logged-in">
+				Logged in as <a href="<%=`/users/${currentUser._id}`%>">
+					<%= currentUser.fullName %></a>
+			</div>
+			<div class="log-out">
+				<a href="/users/logout">Log out</a>
+			</div>
+			<%} else {%>
+			<div class="bubble log-in">
+				<a href="/users/login">Log In</a>
+			</div>
+			<% } %>
 		</div>
 	</div>
 
@@ -53,6 +74,5 @@
 	</div>
 
 </body>
-
 
 </html>

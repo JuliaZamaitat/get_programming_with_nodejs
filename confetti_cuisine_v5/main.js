@@ -14,7 +14,9 @@ const express = require("express"),
   expressSession = require("express-session"),
   cookieParser = require("cookie-parser"),
   connectFlash = require("connect-flash"),
-  expressValidator = require("express-validator");
+  expressValidator = require("express-validator"),
+  passport = require("passport"),
+  User = require("./models/user");
 
   mongoose.connect(
     "mongodb://localhost:27017/confetti_cuisine",
@@ -48,12 +50,27 @@ router.use(expressSession({ //Configure express-session to use cookie-parser
   saveUninitialized: false
 }));
 router.use(connectFlash()); //as middleware
+
+
+router.use(expressValidator());
+
+//Adding Passport module as middleware within Express gives you access to the library of methods provided by Passport.js
+//These methods are extended to the request as it enters the application
+//As that request is passed through the middleware chain, you can call these passport methods on it anywhere you like
+router.use(passport.initialize());
+router.use(passport.session()); //uses expressSession, because it uses whatever session you aready set up
+passport.use(User.createStrategy());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 router.use((req, res, next) => { //middleware to associate connectFlash to flashes on response
   res.locals.flashMessages = req.flash();
+  res.locals.loggedIn = req.isAuthenticated();
+  console.log("Logged" +res.locals.loggedIn);
+  res.locals.currentUser = req.user;
   next();
 });
 
-router.use(expressValidator());
 
 router.get("/", homeController.index);
 router.get("/contact", homeController.getSubscriptionPage);
@@ -81,7 +98,8 @@ router.get("/subscribers/:id", subscribersController.show, subscribersController
 router.get("/users", usersController.index, usersController.indexView);
 router.get("/users/new", usersController.new);
 router.get("/users/login", usersController.login); //have to be above :id routes
-router.post("/users/login", usersController.authenticate, usersController.redirectView);
+router.post("/users/login", usersController.authenticate);
+router.get("/users/logout", usersController.logout, usersController.redirectView);
 router.get("/users/:id", usersController.show, usersController.showView);
 router.get("/users/:id/edit", usersController.edit);
 router.put("/users/:id/update", usersController.update, usersController.redirectView);
