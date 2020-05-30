@@ -5,9 +5,11 @@ const router = require("express").Router(),
   subscriberRoutes = require("./subscriberRoutes"),
   courseRoutes = require("./courseRoutes"),
   errorRoutes = require("./errorRoutes"),
-  homeRoutes = require("./homeRoutes");
+  homeRoutes = require("./homeRoutes"),
+  apiRoutes = require("./apiRoutes");
 
 //ORDER MATTERS! More Detailed routes on top
+router.use("/api", apiRoutes);
 router.use("/users", userRoutes);
 router.use("/subscribers", subscriberRoutes);
 router.use("/courses", courseRoutes);
