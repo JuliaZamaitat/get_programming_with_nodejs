@@ -3,11 +3,11 @@
 const router = require("express").Router(),
   coursesController = require("../controllers/coursesController");
 
-//router.get("/courses/:id/join", coursesController.join, coursesController.respondJSON);
+router.get("/courses/:id/join", coursesController.join, coursesController.respondJSON);
 router.get(
   "/courses",
   coursesController.index,
-  //coursesController.filterUserCourses,
+  coursesController.filterUserCourses,
   coursesController.respondJSON
 );
 router.use(coursesController.errorJSON);

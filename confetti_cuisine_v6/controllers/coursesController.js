@@ -1,14 +1,14 @@
 "use strict";
 
 const Course = require("../models/course"),
- httpStatus = require("http-status-codes");
+  httpStatus = require("http-status-codes"),
+  User = require("../models/user");
 
 module.exports = {
   index: (req, res, next) => {
     Course.find({})
       .then(courses => {
         res.locals.courses = courses;
-        console.log(courses);
         next();
       })
       .catch(error => {
@@ -108,6 +108,12 @@ module.exports = {
         next();
       });
   },
+
+  redirectView: (req, res, next) => {
+    let redirectPath = res.locals.redirect;
+    if (redirectPath !== undefined) res.redirect(redirectPath);
+    else next();
+  },
   respondJSON: (req, res) => {
     res.json({
       status: httpStatus.OK,
@@ -129,9 +135,39 @@ module.exports = {
     }
     res.json(errorObject);
   },
-  redirectView: (req, res, next) => {
-    let redirectPath = res.locals.redirect;
-    if (redirectPath !== undefined) res.redirect(redirectPath);
-    else next();
+  join: (req, res, next) => {
+    let courseId = req.params.id,
+      currentUser = req.user;
+    if (currentUser) {
+      User.findByIdAndUpdate(currentUser, {
+        $addToSet: {
+          courses: courseId
+        }
+      })
+        .then(() => {
+          res.locals.success = true;
+          next();
+        })
+        .catch(error => {
+          next(error);
+        });
+    } else {
+      next(new Error("User must log in."));
+    }
+  },
+  filterUserCourses: (req, res, next) => {
+    let currentUser = res.locals.currentUser;
+    if (currentUser) {
+      let mappedCourses = res.locals.courses.map(course => {
+        let userJoined = currentUser.courses.some(userCourse => {
+          return userCourse.equals(course._id);
+        });
+        return Object.assign(course.toObject(), { joined: userJoined });
+      });
+      res.locals.courses = mappedCourses;
+      next();
+    } else {
+      next();
+    }
   }
 };
