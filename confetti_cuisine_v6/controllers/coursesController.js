@@ -136,6 +136,7 @@ module.exports = {
     res.json(errorObject);
   },
   join: (req, res, next) => {
+    console.log(req.params);
     let courseId = req.params.id,
       currentUser = req.user;
     if (currentUser) {

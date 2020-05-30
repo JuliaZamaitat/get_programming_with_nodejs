@@ -3,17 +3,16 @@
 const User = require("../models/user"),
   passport = require("passport"),
   getUserParams = body => {
-      return {
-        name: {
-          first: body.first,
-          last: body.last
-        },
-        email: body.email,
-        password: body.password,
-        zipCode: body.zipCode
-      };
+    return {
+      name: {
+        first: body.first,
+        last: body.last
+      },
+      email: body.email,
+      password: body.password,
+      zipCode: body.zipCode
     };
-
+  };
 
 module.exports = {
   index: (req, res, next) => {
@@ -30,7 +29,6 @@ module.exports = {
   indexView: (req, res) => {
     res.render("users/index");
   },
-
   new: (req, res) => {
     res.render("users/new");
   },
@@ -84,24 +82,26 @@ module.exports = {
   },
   update: (req, res, next) => {
     let userId = req.params.id,
-      userParams = getUserParams(req.body);
+      userParams = {
+        name: {
+          first: req.body.first,
+          last: req.body.last
+        },
+        email: req.body.email,
+        password: req.body.password,
+        zipCode: req.body.zipCode
+      };
     User.findByIdAndUpdate(userId, {
       $set: userParams
-    },
-    {
-      runValidators: true
     })
       .then(user => {
-        req.flash("success", `${user.fullName}'s account updated successfully!`);
         res.locals.redirect = `/users/${userId}`;
         res.locals.user = user;
         next();
       })
       .catch(error => {
-        console.log(`Error updating user: ${error.message}`);
-        res.locals.redirect = `/users/${userId}/edit`;
-        req.flash("error", `Failed to update user account because: ${error.message}`);
-        next();
+        console.log(`Error updating user by ID: ${error.message}`);
+        next(error);
       });
   },
   delete: (req, res, next) => {
@@ -109,7 +109,6 @@ module.exports = {
     User.findByIdAndRemove(userId)
       .then(() => {
         res.locals.redirect = "/users";
-        req.flash("success", `${user.fullName}'s account deleted successfully!`);
         next();
       })
       .catch(error => {
@@ -119,12 +118,6 @@ module.exports = {
   },
   login: (req, res) => {
     res.render("users/login");
-  },
-  logout: (req, res, next) => {
-    req.logout(); //Provided by passport js
-    req.flash("success", "You have been logged out!");
-    res.locals.redirect = "/";
-    next();
   },
   authenticate: passport.authenticate("local", {
     failureRedirect: "/users/login",
@@ -154,7 +147,7 @@ module.exports = {
     req.getValidationResult().then(error => {
       if (!error.isEmpty()) {
         let messages = error.array().map(e => e.msg);
-        req.skip = true; //tells to skip the create action and instead go to redirectView
+        req.skip = true;
         req.flash("error", messages.join(" and "));
         res.locals.redirect = "/users/new";
         next();
@@ -162,5 +155,11 @@ module.exports = {
         next();
       }
     });
+  },
+  logout: (req, res, next) => {
+    req.logout();
+    req.flash("success", "You have been logged out!");
+    res.locals.redirect = "/";
+    next();
   }
 };
