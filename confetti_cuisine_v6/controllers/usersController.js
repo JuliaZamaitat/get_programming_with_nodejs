@@ -2,6 +2,7 @@
 
 const User = require("../models/user"),
   passport = require("passport"),
+  token = process.env.TOKEN || "recipeT0k3n",
   getUserParams = body => {
     return {
       name: {
@@ -161,5 +162,17 @@ module.exports = {
     req.flash("success", "You have been logged out!");
     res.locals.redirect = "/";
     next();
+  },
+  verifyToken: (req, res, next) => {
+    let token = req.query.apiToken;
+    if (token) {
+      User.findOne({apiToken: token})
+      .then(user => {
+        if (user) next();
+        else next(new Error("Invalid API token."));
+      }).catch(e => next(e))
+    } else {
+      next(new Error("Invalid API token"));
+    }
   }
 };

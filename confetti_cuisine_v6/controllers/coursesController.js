@@ -160,10 +160,10 @@ module.exports = {
     let currentUser = res.locals.currentUser;
     if (currentUser) {
       let mappedCourses = res.locals.courses.map(course => {
-        let userJoined = currentUser.courses.some(userCourse => {
+        let userJoined = currentUser.courses.some(userCourse => { //some returns a boolean
           return userCourse.equals(course._id);
         });
-        return Object.assign(course.toObject(), { joined: userJoined });
+        return Object.assign(course.toObject(), { joined: userJoined }); //convert to JSON object and append parameter
       });
       res.locals.courses = mappedCourses;
       next();

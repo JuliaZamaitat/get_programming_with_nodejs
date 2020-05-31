@@ -5,6 +5,7 @@ const mongoose = require("mongoose"),
   Subscriber = require("./subscriber"),
   bcrypt = require("bcrypt"),
   passportLocalMongoose = require("passport-local-mongoose"),
+  randToken = require("rand-token"),
   userSchema = new Schema(
     {
       name: {
@@ -32,6 +33,9 @@ const mongoose = require("mongoose"),
       subscribedAccount: {
         type: Schema.Types.ObjectId,
         ref: "Subscriber"
+      },
+      apiToken: {
+        type: String
       }
     },
     {
@@ -45,6 +49,7 @@ userSchema.virtual("fullName").get(function() {
 
 userSchema.pre("save", function(next) {
   let user = this;
+  if(!user.apiToken) user.apiToken = randToken.generate(16);
   if (user.subscribedAccount === undefined) {
     Subscriber.findOne({
       email: user.email

@@ -1,8 +1,11 @@
 "use strict";
 
 const router = require("express").Router(),
-  coursesController = require("../controllers/coursesController");
+  coursesController = require("../controllers/coursesController"),
+  usersController = require("../controllers/usersController");
 
+
+router.use(usersController.verifyToken);
 router.get("/courses/:id/join", coursesController.join, coursesController.respondJSON);
 router.get(
   "/courses",
