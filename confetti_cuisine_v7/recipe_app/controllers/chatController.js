@@ -5,6 +5,7 @@ const Message = require("../models/message");
 module.exports = io => {
   io.on("connection", client => {
     console.log("new connection");
+    client.broadcast.emit("user connected");
 
     Message.find({})
       .sort({ createdAt: -1 })
@@ -31,5 +32,6 @@ module.exports = io => {
         })
         .catch(error => console.log(`error: ${error.message}`));
     });
+
   });
 };
